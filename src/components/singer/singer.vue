@@ -1,13 +1,11 @@
 <template>
   <div class="singer" ref="singer">
-    歌手
   </div>
 </template>
 
-<script type="text/ecmascript-6">
+<script>
   import {getSingerList} from 'api/singer'
   import {ERR_OK} from 'api/config'
-  // import {getRecommend} from 'api/recommend'
 
   export default {
     data() {
@@ -15,20 +13,21 @@
         singers: []
       }
     },
-
     created() {
       this._getSingerList()
     },
-
     methods: {
       _getSingerList() {
         getSingerList().then((res) => {
           if (res.code === ERR_OK) {
-            console.log(res)
-         }
+            console.log(res.data.list)
+          }
         })
       }
-    }
+  },
+  components: {
+
+  }
   }
 
 </script>
