@@ -20,6 +20,10 @@
      data: {
        type: Array,
        default: null
+     },
+     listenScroll: {
+       type: Boolean,
+       default: false
      }
    },
 
@@ -38,6 +42,11 @@
          probeType: this.probeType,
          click: this.click
        })
+       if (this.listenScroll) {
+         this.scroll.on('scroll', (pos) => {
+           this.$emit('scrollMove', pos)
+         })
+       }
      },
      refresh() {
        this.scroll && this.scroll.refresh()
@@ -47,6 +56,12 @@
      },
      disable() {
        this.scroll && this.scroll.disable()
+     },
+     scrollTo() { // 代理better-scroll 中的 scrollTo 方法 滚动到指定的位置
+       this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments)
+     },
+     scrollToElement() { // 滚动到指定的目标元素
+       this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments)
      }
    },
    watch: {

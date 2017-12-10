@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <template>
   <div class="singer" ref="singer">
     <listview :data='singers'></listview>
@@ -36,7 +37,7 @@
             items: []
           }
         }
-        list.forEach((item, index) => {
+        list.forEach((item, index) => { // 热门
           if (index < HOT_LEN) {
             map.hot.items.push(new Singer({
               id: item.Fsinger_mid,
@@ -50,7 +51,7 @@
               items: []
             }
           }
-          map[key].items.push(new Singer({
+          map[key].items.push(new Singer({ // 歌手
             id: item.Fsinger_mid,
             name: item.Fsinger_name
           }))
