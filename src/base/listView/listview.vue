@@ -8,7 +8,7 @@
           :probeType="probeType"
   >
     <ul>
-      <li v-for='item in data' class="list-group" ref="groupList">
+      <li v-for='item in data' class="list-group" ref="groupList" @click="select(item)">
          <h2 class="list-group-title">{{item.title}}</h2>
          <ul>
            <li v-for='group in item.items' class="list-group-item">
@@ -106,6 +106,9 @@ export default {
     },
     inscrollMove(pos) { // scroll组件派发的scroll事件,来传递移动的距离
       this.scrolY = pos.y
+    },
+    select(item) { // 子组件派发事件
+      this.$emit('select', item)
     },
     calucate() { // 获取各个字母歌手的列表高度
       this.listHeight = []

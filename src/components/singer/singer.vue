@@ -1,7 +1,7 @@
 <!--suppress ALL -->
 <template>
   <div class="singer" ref="singer">
-    <listview :data='singers'></listview>
+    <listview :data='singers' @select="selectItem"></listview>
   </div>
 </template>
 
@@ -70,6 +70,11 @@
           return a.title.charCodeAt() - b.title.charCodeAt()
         })
         return hot.concat(letters)
+      },
+      selectItem(singers) {
+        this.$router.push({
+          path: `/singers/${singers.id}`
+        })
       }
     },
     components: {
