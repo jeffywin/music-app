@@ -2,6 +2,7 @@
 <template>
   <div class="singer" ref="singer">
     <listview :data='singers' @select="selectItem"></listview>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -10,6 +11,7 @@
   import {getSingerList} from 'api/singer'
   import {ERR_OK} from 'api/config'
   import Singer from 'common/js/singer'
+  import {mapMutations} from 'vuex'
 
   const HOT_NAME = '热门'
   const HOT_LEN = 10
@@ -71,11 +73,16 @@
         })
         return hot.concat(letters)
       },
-      selectItem(singers) {
+      selectItem(singer) {
         this.$router.push({
-          path: `/singers/${singers.id}`
+          path: `/singer/${singer.id}`
         })
-      }
+        // this.$store.commit('SET_SINGER', singer)
+        this.setSinger(singer)
+      }, // 接收子组件listview的id,跳转子路由
+      ...mapMutations({
+         setSinger: 'SET_SINGER'
+      })
     },
     components: {
       listview

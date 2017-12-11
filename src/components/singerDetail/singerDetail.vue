@@ -1,9 +1,21 @@
 <template>
-  <transition class="singer-wrapper" :name="slider"></transition>
+  <transition name="slide">
+    <div class="singer-wrapper"></div>
+  </transition>
 </template>
 
 <script type="text/ecmascript-6">
+  import {mapGetters} from 'vuex'
 
+  export default {
+    created() { // this.$store.state.singer 等同于 this.singerInfo(因为getters封装了)
+    },
+    computed: {
+      ...mapGetters([
+        'singerInfo'
+      ])
+    }
+  }
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
@@ -14,10 +26,11 @@
     left: 0
     right: 0
     bottom: 0
-    background: $color-background
-  .slider-enter-active, .slider-enter-leave
+    background: #ccc
+  .slide-enter-active, .slide-leave-active
     transition: all 0.3s
-  .slider-enter, .slider-leave-to
+
+  .slide-enter, .slide-leave-to
     transform: translate3d(100%, 0, 0)
 
 </style>

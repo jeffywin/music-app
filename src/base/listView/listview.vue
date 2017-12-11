@@ -8,17 +8,20 @@
           :probeType="probeType"
   >
     <ul>
-      <li v-for='item in data' class="list-group" ref="groupList" @click="select(item)">
+      <li v-for='item in data' class="list-group" ref="groupList" >
          <h2 class="list-group-title">{{item.title}}</h2>
          <ul>
-           <li v-for='group in item.items' class="list-group-item">
+           <li v-for='group in item.items' class="list-group-item"  @click="select(group)">
               <img class="avatar" :src="group.avatar">
               <span class="name">{{group.name}}</span>
            </li>
          </ul>
       </li>
     </ul>
-    <div class="list-shortcut" @touchstart.stop.prevent="moveTouchStart" @touchmove.stop.prevent="moveTouchMove">
+    <div class="list-shortcut"
+         @touchstart.stop.prevent="moveTouchStart"
+         @touchmove.stop.prevent="moveTouchMove"
+    >
       <ul>
         <li v-for='(item, index) in rightList'
             class="item"
