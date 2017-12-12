@@ -4,14 +4,72 @@
       <i class="icon-back"></i>
     </div>
     <h1 class="title" v-html="title"></h1>
-    <div class="bg-image" :style="bgStyle">
+    <div class="bg-image" :style="bgStyle" ref="bgImage">
       <div class="filter"></div>
     </div>
+    <div class="bg-layer" ref="layer"></div>
+    <Scroll
+      class="list"
+      :data="songs"
+      :probe-type="probeType"
+      ref="songlist"
+      :listen-scroll="listenScroll"
+      @scrollMove="inscrollMove"
+    >
+      <div class="song-list-wrapper" >
+        <song-list :songs="songs"></song-list>
+      </div>
+    </Scroll>
+
   </div>
 </template>
 
 <script>
+import SongList from 'base/song-list/song-list'
+import Scroll from 'base/scroll/scroll'
+
+const TOP_HEIGHT = 38
+
 export default {
+  created() {
+    this.probeType = 3
+    this.listenScroll = true // scroll子组件派发scrollMove事件,拿到移动距离
+  },
+  data() {
+    return {
+      scrolY: -1,
+      maxScrollHeight: 0
+    }
+  },
+  mounted() {
+    this.clientHeight = this.$refs.bgImage.clientHeight
+    this.maxScrollHeight = -this.clientHeight + TOP_HEIGHT
+    this.$refs.songlist.$el.style.top = `${this.clientHeight}px`
+  },
+  watch: { // watch 是对象
+    scrolY(newY) {
+      let maxHeight = Math.max(this.maxScrollHeight, newY) // 滚动距离小于最大距离时候 layer层停止滚动
+      this.$refs.layer.style['transform'] = `translate3d(0,${maxHeight}px,0)`
+      let zIndex = 0
+      let scale = 1
+      const percent = Math.abs(newY / this.clientHeight)
+      if (newY > 0) {
+        scale = 1 + percent
+        zIndex = 10
+      }
+      if (newY < maxHeight) {
+        zIndex = 10
+        this.$refs.bgImage.style.paddingTop = 0
+        this.$refs.bgImage.style.height = `${TOP_HEIGHT}px`
+      } else {
+        this.$refs.bgImage.style.paddingTop = '70%'
+        this.$refs.bgImage.style.height = 0
+      }
+      this.$refs.bgImage.style.zIndex = zIndex
+      this.$refs.bgImage.style['transform'] = `scale(${scale})`
+      this.$refs.bgImage.style.zIndex = zIndex
+    }
+  },
   props: {
     bgImage: {
       type: String,
@@ -26,17 +84,25 @@ export default {
       default: ''
     }
   },
+  methods: {
+    inscrollMove(pos) { // 子组件scroll派发的事件
+      this.scrolY = pos.y
+    }
+  },
   computed: { // 计算属性
     bgStyle() {
       return `background-image:url(${this.bgImage})`
     }
+  },
+  components: {
+    SongList,
+    Scroll
   }
 }
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
   @import "~common/stylus/variable"
-  @import "~common/stylus/mixin"
 
   .music-list
     position: fixed
