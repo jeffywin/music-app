@@ -1,7 +1,7 @@
 <template>
   <div class="music-list">
     <div class="back">
-      <i class="icon-back"></i>
+      <i class="icon-back" @click="back"></i>
     </div>
     <h1 class="title" v-html="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
@@ -100,6 +100,9 @@ export default {
     },
     random() {
       console.log(1)
+    },
+    back() { // 后退
+      this.$router.back()
     }
   },
   computed: { // 计算属性
