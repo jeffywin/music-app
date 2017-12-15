@@ -23,7 +23,7 @@
       @scrollMove="inscrollMove"
     >
       <div class="song-list-wrapper" >
-        <song-list :songs="songs"></song-list>
+        <song-list @select="selectItem" :songs="songs"></song-list>
       </div>
     </Scroll>
     <div class="loading-container" v-show="!songs.length">
@@ -36,6 +36,7 @@
 import SongList from 'base/song-list/song-list'
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
+import {mapActions} from 'vuex'
 
 const TOP_HEIGHT = 38
 
@@ -103,7 +104,16 @@ export default {
     },
     back() { // 后退
       this.$router.back()
-    }
+    },
+    selectItem(item, index) {
+      this.playInfo({
+        list: this.songs,
+        index
+      })
+    },
+    ...mapActions([
+      'playInfo'
+    ])
   },
   computed: { // 计算属性
     bgStyle() {
