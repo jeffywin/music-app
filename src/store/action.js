@@ -3,7 +3,7 @@
  */
 import * as types from './mutation-types'
 
-export const playInfo = function ({commit, state}, {list, index}) {
+export const playInfo = function ({commit}, {list, index}) {
   commit(types.SET_CURRENT_INDEX, index)
   commit(types.SET_PLAYLIST, list)
   commit(types.SET_SEQUENCELIST, list)
