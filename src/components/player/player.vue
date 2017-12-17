@@ -1,57 +1,61 @@
 <template>
     <div class="player" v-show="playlist.length>0">
-      <div class="normal-player" v-show="fullScreen">
-        <div class="background">
-          <img width="100%" height="100%" :src="currentSong.image">
-        </div>
-        <div class="top">
-          <div class="back">
-            <i class="icon-back" @click="miniPlayer"></i>
+      <transition name="normal">
+        <div class="normal-player" v-show="fullScreen">
+          <div class="background">
+            <img width="100%" height="100%" :src="currentSong.image">
           </div>
-          <h1 class="title" v-html="currentSong.name"></h1>
-          <h2 class="subtitle" v-html="currentSong.singer"></h2>
-        </div>
-        <div class="middle">
-          <div class="middle-l">
-            <div class="cd-wrapper">
-              <div class="cd">
-                <img class="image" :src="currentSong.image">
+          <div class="top">
+            <div class="back">
+              <i class="icon-back" @click="miniPlayer"></i>
+            </div>
+            <h1 class="title" v-html="currentSong.name"></h1>
+            <h2 class="subtitle" v-html="currentSong.singer"></h2>
+          </div>
+          <div class="middle">
+            <div class="middle-l">
+              <div class="cd-wrapper">
+                <div class="cd">
+                  <img class="image" :src="currentSong.image">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bottom">
+            <div class="operators">
+              <div class="icon i-left">
+                <div class="icon-sequence"></div>
+              </div>
+              <div class="icon i-left">
+                <div class="icon-prev"></div>
+              </div>
+              <div class="icon i-center">
+                <div class="icon-play"></div>
+              </div>
+              <div class="icon i-right">
+                <div class="icon-next"></div>
+              </div>
+              <div class="icon i-right">
+                <div class="icon"></div>
               </div>
             </div>
           </div>
         </div>
-        <div class="bottom">
-          <div class="operators">
-            <div class="icon i-left">
-              <div class="icon-sequence"></div>
-            </div>
-            <div class="icon i-left">
-              <div class="icon-prev"></div>
-            </div>
-            <div class="icon i-center">
-              <div class="icon-play"></div>
-            </div>
-            <div class="icon i-right">
-              <div class="icon-next"></div>
-            </div>
-            <div class="icon i-right">
-              <div class="icon icon-not-favourite"></div>
-            </div>
+      </transition>
+      <transition name="mini">
+        <div class="mini-player" v-show="!fullScreen" @click="normalPlayer">
+          <div class="icon">
+            <img width="40" height="40" :src="currentSong.image">
+          </div>
+          <div class="text">
+            <h2 class="name" v-html="currentSong.name"></h2>
+            <p class="desc" v-html="currentSong.singer"></p>
+          </div>
+          <div class="control">
+            <i class="icon-playlist"></i>
           </div>
         </div>
-      </div>
-      <div class="mini-player" v-show="!fullScreen" @click="normalPlayer">
-        <div class="icon">
-          <img width="40" height="40" :src="currentSong.image">
-        </div>
-        <div class="text">
-          <h2 class="name" v-html="currentSong.name"></h2>
-          <p class="desc" v-html="currentSong.singer"></p>
-        </div>
-        <div class="control">
-          <i class="icon-playlist"></i>
-        </div>
-      </div>
+      </transition>
     </div>
 </template>
 
@@ -74,7 +78,7 @@
       normalPlayer() {
         this.setFullScreen(true)
       },
-      ...mapMutations({
+      ...mapMutations({ // 全屏
         setFullScreen: 'SET_FULL_SCREEN'
       })
     }
