@@ -2,7 +2,11 @@
   <div class="progress-bar" ref="progressBar">
     <div class="bar-inner">
       <div class="progress" ref="progress"></div>
-      <div class="progress-btn-wrapper" ref="progressBtn">
+      <div class="progress-btn-wrapper" ref="progressBtn"
+           @touchstart="ptouchstart"
+           @touchmove="ptouchmove"
+           @touchend="ptouchend"
+      >
         <div class="progress-btn"></div>
       </div>
     </div>
@@ -19,13 +23,43 @@
         default: 0
       }
     },
+    created() {
+      this.touch = {}
+    },
+    methods: {
+      ptouchstart(e) {
+        this.touch.initiated = true
+        this.touch.startX = e.touches[0].pageX // 开始拖动的位置
+        this.touch.left = this.$refs.progress.clientWidth // 进度条的距离
+      },
+      ptouchmove(e) {
+        if (!this.touch.initiated) {
+          return
+        }
+        const deltaX = e.touches[0].pageX - this.touch.startX // 手指移动偏移量
+        const offsetWidth = Math.min(this.$refs.progressBar.clientWidth - CIRCLEWIDTH, Math.max(0, this.touch.left + deltaX))
+        this._offset(offsetWidth)
+      },
+      ptouchend() {
+        this.touch.initiated = false
+        this.triggerPersent()
+      },
+      triggerPersent() {
+        const progressBarWdith = this.$refs.progressBar.clientWidth - CIRCLEWIDTH
+        const persent = this.$refs.progress.clientWidth / progressBarWdith
+        this.$emit('persentChange', persent)
+      },
+      _offset(offsetWidth) {
+        this.$refs.progress.style.width = `${offsetWidth}px`
+        this.$refs.progressBtn.style['transform'] = `translate3d(${offsetWidth}px,0,0)`
+      }
+    },
     watch: {
       present(newPre) {
-        if (newPre > 0) {
+        if (newPre > 0 && !this.touch.initiated) {
           const progressBarWdith = this.$refs.progressBar.clientWidth - CIRCLEWIDTH
-          const proWidth = newPre * progressBarWdith
-          this.$refs.progress.style.width = `${proWidth}px`
-          this.$refs.progressBtn.style['transform'] = `translate3d(${proWidth}px, 0, 0)`
+          const offsetWidth = newPre * progressBarWdith
+          this._offset(offsetWidth)
         }
       }
     }

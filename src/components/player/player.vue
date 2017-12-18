@@ -25,7 +25,7 @@
             <div class="progress-wrapper">
               <span class="time time-r">{{format(currentTime)}}</span>
               <div class="progress-bar-wrapper">
-                <progress-bar :present="present"></progress-bar>
+                <progress-bar :present="present" @persentChange="presentChange"></progress-bar>
               </div>
               <span class="time time-l">{{format(currentSong.duration)}}</span>
             </div>
@@ -170,6 +170,12 @@
           len++
         }
         return num
+      },
+      presentChange(present) {
+        this.$refs.audio.currentTime = this.currentSong.duration * present
+        if (!this.playing) {
+          this.togglePlay()
+        }
       },
        ...mapMutations({ // 全屏
         setFullScreen: 'SET_FULL_SCREEN',
