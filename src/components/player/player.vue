@@ -1,7 +1,7 @@
 <template>
     <div class="player" v-show="playlist.length>0">
       <transition name="normal">
-        <div class="normal-player" v-show="fullScreen">
+        <div class="normal-player" v-show="fullScreen" v-if="currentSong">
           <div class="background">
             <img width="100%" height="100%" :src="currentSong.image">
           </div>
@@ -15,7 +15,7 @@
           <div class="middle">
             <div class="middle-l">
               <div class="cd-wrapper">
-                <div class="cd">
+                <div class="cd" :class="cdPlay">
                   <img class="image" :src="currentSong.image">
                 </div>
               </div>
@@ -24,26 +24,26 @@
           <div class="bottom">
             <div class="operators">
               <div class="icon i-left">
-                <div class="icon-sequence"></div>
+                <i class="icon-sequence"></i>
               </div>
               <div class="icon i-left">
-                <div class="icon-prev"></div>
+                <i class="icon-prev"></i>
               </div>
               <div class="icon i-center">
-                <div class="icon-play"></div>
+                <i :class="normalPlay" @click="togglePlay"></i>
               </div>
               <div class="icon i-right">
-                <div class="icon-next"></div>
+                <i class="icon-next"></i>
               </div>
               <div class="icon i-right">
-                <div class="icon"></div>
+                <i class="icon icon-sequence"></i>
               </div>
             </div>
           </div>
         </div>
       </transition>
       <transition name="mini">
-        <div class="mini-player" v-show="!fullScreen" @click="normalPlayer">
+        <div class="mini-player" v-show="!fullScreen" @click="normalPlayer" v-if="currentSong">
           <div class="icon">
             <img width="40" height="40" :src="currentSong.image">
           </div>
@@ -52,10 +52,14 @@
             <p class="desc" v-html="currentSong.singer"></p>
           </div>
           <div class="control">
+            <i :class="miniIcon" @click.stop="toggleMiniP"></i>
+          </div>
+          <div class="control">
             <i class="icon-playlist"></i>
           </div>
         </div>
       </transition>
+      <audio ref='audio' :src="currentSong.url" v-if="currentSong"></audio>
     </div>
 </template>
 
@@ -63,6 +67,15 @@
   import {mapGetters, mapMutations} from 'vuex'
   export default {
     computed: {
+      normalPlay() {
+        return this.playing ? 'icon-pause' : 'icon-play'
+      },
+      miniIcon() {
+        return this.playing ? 'icon-pause' : 'icon-play'
+      },
+      cdPlay() { // 唱片转动
+        return this.playing ? 'play' : 'play pause'
+      },
       ...mapGetters([
         'playing',
         'fullScreen',
@@ -78,9 +91,29 @@
       normalPlayer() {
         this.setFullScreen(true)
       },
+      toggleMiniP() {
+        this.setPlayingState(!this.playing)
+      },
+      togglePlay() {
+        this.setPlayingState(!this.playing)
+      },
       ...mapMutations({ // 全屏
-        setFullScreen: 'SET_FULL_SCREEN'
+        setFullScreen: 'SET_FULL_SCREEN',
+        setPlayingState: 'SET_PLAYING_STATE'
       })
+    },
+    watch: {
+      currentSong() {
+        this.$nextTick(() => {
+          this.$refs.audio.play()
+        })
+      },
+      playing(newPlaying) {
+        this.$nextTick(() => {
+          const audio = this.$refs.audio
+          newPlaying ? audio.play() : audio.pause()
+        })
+      }
     }
 
   }
