@@ -22,18 +22,25 @@
             </div>
           </div>
           <div class="bottom">
+            <div class="progress-wrapper">
+              <span class="time time-r">{{format(currentTime)}}</span>
+              <div class="progress-bar-wrapper">
+                <progress-bar :present="present"></progress-bar>
+              </div>
+              <span class="time time-l">{{format(currentSong.duration)}}</span>
+            </div>
             <div class="operators">
               <div class="icon i-left">
                 <i class="icon-sequence"></i>
               </div>
-              <div class="icon i-left">
-                <i class="icon-prev"></i>
+              <div class="icon i-left" :class="disableCls">
+                <i @click="prev" class="icon-prev"></i>
               </div>
-              <div class="icon i-center">
+              <div class="icon i-center" :class="disableCls">
                 <i :class="normalPlay" @click="togglePlay"></i>
               </div>
-              <div class="icon i-right">
-                <i class="icon-next"></i>
+              <div class="icon i-right" :class="disableCls">
+                <i @click="next" class="icon-next"></i>
               </div>
               <div class="icon i-right">
                 <i class="icon icon-sequence"></i>
@@ -59,13 +66,20 @@
           </div>
         </div>
       </transition>
-      <audio ref='audio' :src="currentSong.url" v-if="currentSong"></audio>
+      <audio ref='audio' :src="currentSong.url" v-if="currentSong" @canplay="ready" @timeupdate="updateTime"></audio>
     </div>
 </template>
 
 <script>
   import {mapGetters, mapMutations} from 'vuex'
+  import ProgressBar from 'base/progress-bar/progress-bar'
   export default {
+    data() {
+      return {
+        songReady: false,
+        currentTime: 0
+      }
+    },
     computed: {
       normalPlay() {
         return this.playing ? 'icon-pause' : 'icon-play'
@@ -75,6 +89,12 @@
       },
       cdPlay() { // 唱片转动
         return this.playing ? 'play' : 'play pause'
+      },
+      disableCls() {
+        return this.songReady ? '' : 'disable'
+      },
+      present() {
+        return this.currentTime / this.currentSong.duration
       },
       ...mapGetters([
         'playing',
@@ -91,15 +111,70 @@
       normalPlayer() {
         this.setFullScreen(true)
       },
-      toggleMiniP() {
+      toggleMiniP() { // 通过this.playing 来提交mutation ,最终控制播放音乐的是 audi.play()
+        if (!this.songReady) {
+          return
+        }
         this.setPlayingState(!this.playing)
       },
       togglePlay() {
+        if (!this.songReady) {
+          return
+        }
         this.setPlayingState(!this.playing)
       },
-      ...mapMutations({ // 全屏
+      next() { // 下一首歌
+        if (!this.songReady) {
+          return
+        }
+        let index = this.currentIndex + 1
+        if (index === this.playlist.length) { // 最后一首歌的时候
+          index = 0
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) { // 假如暂停时,切换后变为播放
+          this.togglePlay()
+        }
+        this.songReady = false
+      },
+      prev() { // 上一首歌
+        if (!this.songReady) {
+          return
+        }
+        let index = this.currentIndex - 1
+        if (index === -1) {
+          index = this.playlist.length - 1
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) {
+          this.toggleMiniP()
+        }
+        this.songReady = false
+      },
+      ready() { // 只有当歌曲开始播放时候,才为true,防止过度快速点击
+        this.songReady = true
+      },
+      updateTime(e) {
+        this.currentTime = e.target.currentTime
+      },
+      format(interval) {
+        interval = interval | 0
+        const minute = interval / 60 | 0
+        const second = this._pad(interval % 60)
+        return `${minute}:${second}`
+      },
+      _pad(num, n = 2) {
+        let len = num.toString().length
+        while (len < n) {
+          num = '0' + num
+          len++
+        }
+        return num
+      },
+       ...mapMutations({ // 全屏
         setFullScreen: 'SET_FULL_SCREEN',
-        setPlayingState: 'SET_PLAYING_STATE'
+        setPlayingState: 'SET_PLAYING_STATE',
+        setCurrentIndex: 'SET_CURRENT_INDEX'
       })
     },
     watch: {
@@ -114,8 +189,10 @@
           newPlaying ? audio.play() : audio.pause()
         })
       }
+    },
+    components: {
+      ProgressBar
     }
-
   }
 </script>
 
