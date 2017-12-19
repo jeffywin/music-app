@@ -1,5 +1,5 @@
 <template>
-  <div class="progress-bar" ref="progressBar">
+  <div class="progress-bar" ref="progressBar" @click="proClcik">
     <div class="bar-inner">
       <div class="progress" ref="progress"></div>
       <div class="progress-btn-wrapper" ref="progressBtn"
@@ -42,6 +42,11 @@
       },
       ptouchend() {
         this.touch.initiated = false
+        this.triggerPersent()
+      },
+      proClcik(e) { // 点击拖动
+        const rect = this.$refs.progressBar.getBoundingClientRect()
+        this._offset(e.pageX - rect.left) // 点击的位置减去开始的位置
         this.triggerPersent()
       },
       triggerPersent() {

@@ -30,8 +30,8 @@
               <span class="time time-l">{{format(currentSong.duration)}}</span>
             </div>
             <div class="operators">
-              <div class="icon i-left">
-                <i class="icon-sequence"></i>
+              <div class="icon i-left" @click="modeChange">
+                <i :class="playMode"></i>
               </div>
               <div class="icon i-left" :class="disableCls">
                 <i @click="prev" class="icon-prev"></i>
@@ -66,13 +66,15 @@
           </div>
         </div>
       </transition>
-      <audio ref='audio' :src="currentSong.url" v-if="currentSong" @canplay="ready" @timeupdate="updateTime"></audio>
+      <audio ref='audio' :src="currentSong.url" v-if="currentSong" @canplay="ready" @timeupdate="updateTime" @ended="end"></audio>
     </div>
 </template>
 
 <script>
   import {mapGetters, mapMutations} from 'vuex'
   import ProgressBar from 'base/progress-bar/progress-bar'
+  import {playMode} from 'common/js/config'
+  import {shuffle} from 'common/js/dom'
   export default {
     data() {
       return {
@@ -96,12 +98,17 @@
       present() {
         return this.currentTime / this.currentSong.duration
       },
+      playMode() { // 播放模式 样式切换
+        return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : this.mode === playMode.random ? 'icon-random' : ''
+      },
       ...mapGetters([
         'playing',
         'fullScreen',
         'currentIndex',
         'playlist',
-        'currentSong'
+        'currentSong',
+        'mode',
+        'sequenceList'
       ])
     },
     methods: {
@@ -151,6 +158,17 @@
         }
         this.songReady = false
       },
+      end() { // 播放结束
+        if (this.mode === playMode.loop) {
+          this.loop()
+        } else {
+          this.next()
+        }
+      },
+      loop() {
+        this.$refs.audio.currentTime = 0
+        this.$refs.audio.play()
+      },
       ready() { // 只有当歌曲开始播放时候,才为true,防止过度快速点击
         this.songReady = true
       },
@@ -177,14 +195,42 @@
           this.togglePlay()
         }
       },
+      modeChange() { // 点击切换模式
+        const mode = (this.mode + 1) % 3
+        let list = null
+        if (mode === playMode.random) {
+          list = shuffle(this.sequenceList)
+          this.setSequence(list)
+        } else {
+          list = this.sequenceList
+        }
+        this.resetCurrentIndex(list)
+        this.setMode(mode) // 改变播放模式
+        this.setPlaylist(list) // 改变播放列表
+      },
+      resetCurrentIndex(list) {
+        let index = list.findIndex((item) => { // 找出id相同的索引
+          return item.id === this.currentSong.id
+        })
+        this.setCurrentIndex(index)
+      },
        ...mapMutations({ // 全屏
         setFullScreen: 'SET_FULL_SCREEN',
         setPlayingState: 'SET_PLAYING_STATE',
-        setCurrentIndex: 'SET_CURRENT_INDEX'
+        setCurrentIndex: 'SET_CURRENT_INDEX',
+        setMode: 'SET_PLAY_MODE',
+        setSequence: 'SET_SEQUENCELIST', // 播放顺序
+        setPlaylist: 'SET_PLAYLIST' // 播放列表
       })
     },
     watch: {
-      currentSong() {
+      currentSong(newSong, oldSong) {
+        if (!newSong.id) {
+          return
+        }
+        if (newSong.id === oldSong.id) {
+          return
+        }
         this.$nextTick(() => {
           this.$refs.audio.play()
         })

@@ -100,7 +100,9 @@ export default {
       this.scrolY = pos.y
     },
     random() {
-      console.log(1)
+      this.randomPlay({
+        list: this.songs
+      })
     },
     back() { // 后退
       this.$router.back()
@@ -112,7 +114,8 @@ export default {
       })
     },
     ...mapActions([
-      'playInfo'
+      'playInfo',
+      'randomPlay'
     ])
   },
   computed: { // 计算属性
