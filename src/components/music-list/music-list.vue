@@ -115,7 +115,7 @@ export default {
     },
     ...mapActions([
       'playInfo',
-      'randomPlay'
+      'randomPlay' // 随机播放
     ])
   },
   computed: { // 计算属性

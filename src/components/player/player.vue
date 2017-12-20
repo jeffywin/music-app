@@ -12,7 +12,7 @@
             <h1 class="title" v-html="currentSong.name"></h1>
             <h2 class="subtitle" v-html="currentSong.singer"></h2>
           </div>
-          <div class="middle">
+          <div class="middle" @touchstart="middleTouchStart" @touchmove="middleTouchMove" @touchend="middleTouchEnd">
             <div class="middle-l">
               <div class="cd-wrapper">
                 <div class="cd" :class="cdPlay">
@@ -20,8 +20,23 @@
                 </div>
               </div>
             </div>
+            <scroll class="middle-r" :data="currentLyric && currentLyric.lines" ref="lyricList">
+              <div class="lyric-wrapper">
+                <div v-if="currentLyric">
+                  <p ref="lyricLine"
+                     class="text"
+                     :class="{'current': currentLineNum ===index}"
+                     v-for="(item, index) in currentLyric.lines"
+                  >{{item.txt}}</p>
+                </div>
+              </div>
+            </scroll>
           </div>
           <div class="bottom">
+            <div class="dot-wrapper">
+              <span class="dot" :class="{'active': currentShow === 'cd'}"></span>
+              <span class="dot" :class="{'active': currentShow === 'lyric'}"></span>
+            </div>
             <div class="progress-wrapper">
               <span class="time time-r">{{format(currentTime)}}</span>
               <div class="progress-bar-wrapper">
@@ -75,11 +90,19 @@
   import ProgressBar from 'base/progress-bar/progress-bar'
   import {playMode} from 'common/js/config'
   import {shuffle} from 'common/js/dom'
+  import Lyric from 'lyric-parser'
+  import Scroll from 'base/scroll/scroll'
   export default {
+    created() {
+      this.touch = {}
+    },
     data() {
       return {
         songReady: false,
-        currentTime: 0
+        currentTime: 0,
+        currentLyric: null,
+        currentLineNum: 0,
+        currentShow: 'cd'
       }
     },
     computed: {
@@ -208,6 +231,47 @@
         this.setMode(mode) // 改变播放模式
         this.setPlaylist(list) // 改变播放列表
       },
+      getLyric() {
+        this.currentSong.getLyric().then((res) => {
+          if (this.currentSong.lyric !== res) {
+            return
+          }
+          this.currentLyric = new Lyric(res, this.handleLyric)
+          if (this.playing) {
+            console.log(0)
+            this.currentLyric.play()
+          }
+        })
+      },
+      handleLyric(lineNum, text) { // 处理歌词的回调函数
+        let liNum = lineNum.lineNum
+        this.currentLineNum = liNum
+        if (liNum > 5) {
+          let lineN = this.$refs.lyricLine[liNum - 5] // 第5行歌词
+          this.$refs.lyricList.scrollToElement(lineN, 1000) // 每隔1秒往上滑到第5个歌词节点
+        } else {
+          this.$refs.lyricList.scrollTo(0, 0, 1000)
+        }
+      },
+      middleTouchStart(e) { // 左右滑动 歌词
+        this.touch.initiated = true
+        let touches = e.touches[0]
+        this.touch.startX = touches.pageX
+        this.touch.startY = touches.pageY
+      },
+      middleTouchMove(e) { // 往左滑是负数  往右是正数
+        if (!this.touch.initiated) {
+          return
+        }
+        const deltaX = e.touches[0].pageX - this.touch.startX // 滑动的距离
+        // const deltaY = e.touches[0].page - this.touch.startY
+        const left = this.currentShow === 'cd' ? 0 : -window.innerWidth
+        const offsetWidth = Math.min(0, Math.max(-window.innerWidth, left + deltaX))
+        this.$refs.lyricList.$el.style['transform'] = `translate3D(${offsetWidth}px, 0, 0)`
+      },
+      middleTouchEnd() {
+
+      },
       resetCurrentIndex(list) {
         let index = list.findIndex((item) => { // 找出id相同的索引
           return item.id === this.currentSong.id
@@ -225,7 +289,7 @@
     },
     watch: {
       currentSong(newSong, oldSong) {
-        if (!newSong.id) {
+        if (!newSong || !oldSong) {
           return
         }
         if (newSong.id === oldSong.id) {
@@ -233,6 +297,7 @@
         }
         this.$nextTick(() => {
           this.$refs.audio.play()
+          this.getLyric()
         })
       },
       playing(newPlaying) {
@@ -243,7 +308,8 @@
       }
     },
     components: {
-      ProgressBar
+      ProgressBar,
+      Scroll
     }
   }
 </script>
