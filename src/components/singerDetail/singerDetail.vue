@@ -37,12 +37,12 @@
             this.songs = this._normalizeSongs(res.data.list)
         })
       },
-      _normalizeSongs(list) {
+      _normalizeSongs(list) { // 方法目的: 数据进来,循环列表,生成自己想要的歌曲列表
         let ret = []
         list.forEach((res) => {
           let {musicData} = res
           if (musicData.songid && musicData.albummid) {
-            ret.push(createSong(musicData))
+            ret.push(createSong(musicData)) // 工厂模式 实例化 歌曲信息,包括url id img 等
           }
         })
         return ret
