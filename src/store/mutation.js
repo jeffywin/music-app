@@ -24,6 +24,9 @@ const mutations = {
    },
    [types.SET_CURRENT_INDEX](state, index) {
      state.currentIndex = index
+   },
+   [types.SET_SONGSHEET](state, list) {
+     state.songSheet = list
    }
 }
 

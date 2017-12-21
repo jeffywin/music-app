@@ -18,3 +18,5 @@ export const currentIndex = state => state.currentIndex
 export const currentSong = (state) => {
   return state.playlist[state.currentIndex]
 }
+
+export const songSheet = state => state.songSheet // 首页歌单详情

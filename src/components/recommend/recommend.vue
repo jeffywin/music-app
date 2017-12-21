@@ -14,7 +14,7 @@
             <div class="recommend-list">
                 <h1 class="list-title">热门歌单推荐</h1>
                 <ul>
-                  <li class="item" v-for="item in discList">
+                  <li class="item" v-for="item in discList" @click="selectItem(item)">
                     <div class="icon">
                       <img width="60" height="60" v-lazy="item.imgurl" alt="">
                     </div>
@@ -30,6 +30,7 @@
             <loading></loading>
           </div>
         </scroll>
+      <router-view></router-view>
     </div>
 </template>
 
@@ -40,6 +41,7 @@
     import {ERR_OK} from 'api/config'
     import Slider from 'base/slider/slider'
     import {playlistMixin} from 'common/js/mixin'
+    import {mapMutations} from 'vuex'
 
     export default {
       mixins: [playlistMixin],
@@ -54,31 +56,40 @@
           this._getDiscList()
       },
       methods: {
-          _getRecommend() {
-            getRecommend().then((res) => {
-                if (res.code === ERR_OK) {
-                    this.recommends = res.data.slider
-                }
-            })
-          },
-          _getDiscList() {
-            getDiscList().then((res) => {
+        _getRecommend() {
+          getRecommend().then((res) => {
               if (res.code === ERR_OK) {
-                this.discList = res.data.list
+                  this.recommends = res.data.slider
               }
-            })
-          },
-          loadImage() {
-            if (!this.checkload) {
-              this.$refs.scroll.refresh()
-              this.checkload = true
+          })
+        },
+        _getDiscList() {
+          getDiscList().then((res) => {
+            if (res.code === ERR_OK) {
+              this.discList = res.data.list
             }
-          },
-          handlePlaylist(playlist) { // 缩小播放器后 底部 bottom 需要调整为播放器高度
-            const bottom = playlist.length > 0 ? '60px' : ''
-            this.$refs.recommend.style.bottom = bottom
+          })
+        },
+        loadImage() {
+          if (!this.checkload) {
             this.$refs.scroll.refresh()
+            this.checkload = true
           }
+        },
+        handlePlaylist(playlist) { // 缩小播放器后 底部 bottom 需要调整为播放器高度
+          const bottom = playlist.length > 0 ? '60px' : ''
+          this.$refs.recommend.style.bottom = bottom
+          this.$refs.scroll.refresh()
+        },
+        selectItem(list) {
+          this.setSongSheet(list)
+          this.$router.push({
+            path: `/recommend/${list.dissid}`
+          })
+        },
+        ...mapMutations({
+          setSongSheet: 'SET_SONGSHEET'
+        })
       },
       components: {
         Slider,

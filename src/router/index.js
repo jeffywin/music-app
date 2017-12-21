@@ -5,6 +5,7 @@ import Recommend from 'components/recommend/recommend'
 import Search from 'components/search/search'
 import Singer from 'components/singer/singer'
 import SingerDetail from 'components/singerDetail/singerDetail'
+import SongSheet from 'components/songSheet/songSheet'
 
 Vue.use(Router) // 注册
 
@@ -16,7 +17,13 @@ export default new Router({
     },
     {
       path: '/recommend',
-      component: Recommend
+      component: Recommend,
+      children: [
+        {
+          path: ':id', // 注意冒号
+          component: SongSheet
+        }
+      ]
     },
     {
       path: '/search',
