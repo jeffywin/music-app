@@ -129,6 +129,9 @@ export default {
       }
       this.scrolY = -this.listHeight[index] // this.scrolY 滚动的距离
       this.$refs.listview.scrollToElement(this.$refs.groupList[index], 0) // 左侧页面相应跳转,time 0
+    },
+    refresh() {
+      this.$refs.listview.refresh()
     }
   },
   components: {

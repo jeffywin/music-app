@@ -37,10 +37,12 @@ import SongList from 'base/song-list/song-list'
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
 import {mapActions} from 'vuex'
+import {playlistMixin} from 'common/js/mixin'
 
 const TOP_HEIGHT = 38
 
 export default {
+  mixins: [playlistMixin],
   created() {
     this.probeType = 3
     this.listenScroll = true // scroll子组件派发scrollMove事件,拿到移动距离
@@ -112,6 +114,11 @@ export default {
         list: this.songs,
         index
       })
+    },
+    handlePlaylist(playlist) {
+      const bottom = playlist.length > 0 ? '60px' : ''
+      this.$refs.songlist.$el.style.bottom = bottom
+      this.$refs.songlist.refresh()
     },
     ...mapActions([
       'playInfo',

@@ -13,11 +13,14 @@
             <h2 class="subtitle" v-html="currentSong.singer"></h2>
           </div>
           <div class="middle" @touchstart="middleTouchStart" @touchmove="middleTouchMove" @touchend="middleTouchEnd">
-            <div class="middle-l">
+            <div class="middle-l" ref="middleL">
               <div class="cd-wrapper">
                 <div class="cd" :class="cdPlay">
                   <img class="image" :src="currentSong.image">
                 </div>
+              </div>
+              <div class="playing-lyric-wrapper">
+                <div class="playing-lyric">{{playingLyric}}</div>
               </div>
             </div>
             <scroll class="middle-r" :data="currentLyric && currentLyric.lines" ref="lyricList">
@@ -92,6 +95,7 @@
   import {shuffle} from 'common/js/dom'
   import Lyric from 'lyric-parser'
   import Scroll from 'base/scroll/scroll'
+
   export default {
     created() {
       this.touch = {}
@@ -102,7 +106,8 @@
         currentTime: 0,
         currentLyric: null,
         currentLineNum: 0,
-        currentShow: 'cd'
+        currentShow: 'cd',
+        playingLyric: ''
       }
     },
     computed: {
@@ -151,6 +156,9 @@
         if (!this.songReady) {
           return
         }
+        if (this.currentLyric) {
+          this.currentLyric.togglePlay()
+        }
         this.setPlayingState(!this.playing)
       },
       next() { // 下一首歌
@@ -191,6 +199,9 @@
       loop() {
         this.$refs.audio.currentTime = 0
         this.$refs.audio.play()
+        if (this.currentLyric) {
+          this.currentLyric.seek(0)
+        }
       },
       ready() { // 只有当歌曲开始播放时候,才为true,防止过度快速点击
         this.songReady = true
@@ -213,9 +224,13 @@
         return num
       },
       presentChange(present) {
-        this.$refs.audio.currentTime = this.currentSong.duration * present
+        const currentTime = this.currentSong.duration * present
+        this.$refs.audio.currentTime = currentTime
         if (!this.playing) {
           this.togglePlay()
+        }
+        if (this.currentLyric) {
+          this.currentLyric.seek(currentTime)
         }
       },
       modeChange() { // 点击切换模式
@@ -238,12 +253,11 @@
           }
           this.currentLyric = new Lyric(res, this.handleLyric)
           if (this.playing) {
-            console.log(0)
             this.currentLyric.play()
           }
         })
       },
-      handleLyric(lineNum, text) { // 处理歌词的回调函数
+      handleLyric(lineNum) { // 处理歌词的回调函数
         let liNum = lineNum.lineNum
         this.currentLineNum = liNum
         if (liNum > 5) {
@@ -252,6 +266,7 @@
         } else {
           this.$refs.lyricList.scrollTo(0, 0, 1000)
         }
+        this.playingLyric = lineNum.txt
       },
       middleTouchStart(e) { // 左右滑动 歌词
         this.touch.initiated = true
@@ -267,10 +282,33 @@
         // const deltaY = e.touches[0].page - this.touch.startY
         const left = this.currentShow === 'cd' ? 0 : -window.innerWidth
         const offsetWidth = Math.min(0, Math.max(-window.innerWidth, left + deltaX))
+        this.touch.persent = offsetWidth / -window.innerWidth
         this.$refs.lyricList.$el.style['transform'] = `translate3D(${offsetWidth}px, 0, 0)`
       },
       middleTouchEnd() {
-
+        let offsetWidth
+        let opacity
+        if (this.currentShow === 'cd') {
+          if (this.touch.persent > 0.1) { // 往右移动
+            offsetWidth = -window.innerWidth
+            opacity = 0
+            this.currentShow = 'lyric'
+          } else {
+            offsetWidth = 0
+            opacity = 1
+          }
+        } else { // 往左移动
+          if (this.touch.persent < 0.3) {
+            offsetWidth = 0
+            this.currentShow = 'cd'
+            opacity = 1
+          } else {
+            offsetWidth = -window.innerWidth
+            opacity = 0
+          }
+        }
+        this.$refs.lyricList.$el.style['transform'] = `translate3D(${offsetWidth}px, 0, 0)`
+        this.$refs.middleL.style.opacity = opacity
       },
       resetCurrentIndex(list) {
         let index = list.findIndex((item) => { // 找出id相同的索引
@@ -289,12 +327,12 @@
     },
     watch: {
       currentSong(newSong, oldSong) {
-        if (!newSong || !oldSong) {
+        if (!newSong) {
           return
         }
-        if (newSong.id === oldSong.id) {
-          return
-        }
+//        if (newSong.id === oldSong.id) {
+//          return
+//        }
         this.$nextTick(() => {
           this.$refs.audio.play()
           this.getLyric()

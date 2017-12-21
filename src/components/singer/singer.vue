@@ -1,7 +1,7 @@
 <!--suppress ALL -->
 <template>
   <div class="singer" ref="singer">
-    <listview :data='singers' @select="selectItem"></listview>
+    <listview :data='singers' @select="selectItem" ref="listview"></listview>
     <router-view></router-view>
   </div>
 </template>
@@ -12,10 +12,12 @@
   import {ERR_OK} from 'api/config'
   import Singer from 'common/js/singer'
   import {mapMutations} from 'vuex'
+  import {playlistMixin} from 'common/js/mixin'
 
   const HOT_NAME = '热门'
   const HOT_LEN = 10
   export default {
+    mixins: [playlistMixin],
     data() {
       return {
         singers: []
@@ -72,6 +74,11 @@
           return a.title.charCodeAt() - b.title.charCodeAt()
         })
         return hot.concat(letters)
+      },
+      handlePlaylist(playlist) {
+        const bottom = this.playlist.length > 0 ? '60px' : 0
+        this.$refs.singer.style.bottom = bottom
+        this.$refs.listview.refresh() // 直接调用子组件的refresh() 方法
       },
       selectItem(singer) {
         this.$router.push({
