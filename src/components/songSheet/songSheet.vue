@@ -7,12 +7,18 @@
 <script>
   import MusicList from 'components/music-list/music-list'
   import {mapGetters} from 'vuex'
+  // import {createSong} from 'common/js/song'
+  import {ERR_OK} from 'api/config'
+  import {getSongList} from 'api/recommend'
 
   export default {
     data() {
       return {
         songs: []
       }
+    },
+    created() {
+      this._getSongList()
     },
     computed: { // 计算属性
       title() {
@@ -24,6 +30,19 @@
       ...mapGetters([
         'songSheet'
       ])
+    },
+    methods: {
+      _getSongList() {
+        if (!this.songSheet.dissid) {
+          this.$router.push('/recommend')
+          return
+        }
+        getSongList(this.songSheet.dissid).then((res) => {
+          if (res.code === ERR_OK) {
+            console.log(res)
+          }
+        })
+      }
     },
     components: {
       MusicList
