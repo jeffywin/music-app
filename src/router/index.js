@@ -6,6 +6,7 @@ import Search from 'components/search/search'
 import Singer from 'components/singer/singer'
 import SingerDetail from 'components/singerDetail/singerDetail'
 import SongSheet from 'components/songSheet/songSheet'
+import TopList from 'components/top-list/top-list'
 
 Vue.use(Router) // 注册
 
@@ -31,7 +32,13 @@ export default new Router({
     },
     {
       path: '/rank',
-      component: Rank
+      component: Rank,
+      children: [
+        {
+          path: ':id',
+          component: TopList
+        }
+      ]
     },
     {
       path: '/singer',

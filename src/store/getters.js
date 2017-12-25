@@ -20,3 +20,5 @@ export const currentSong = (state) => {
 }
 
 export const songSheet = state => state.songSheet // 首页歌单详情
+
+export const rankMusicList = state => state.rankMusicList // 排行歌单详情

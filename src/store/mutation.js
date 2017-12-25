@@ -27,6 +27,9 @@ const mutations = {
    },
    [types.SET_SONGSHEET](state, list) {
      state.songSheet = list
+   },
+   [types.SET_RANK_MUSICLIST](state, list) {
+    state.rankMusicList = list
    }
 }
 
