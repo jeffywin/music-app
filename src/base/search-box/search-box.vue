@@ -15,7 +15,7 @@
       }
     },
     created() {
-      this.$watch('query', (newquery) => {
+      this.$watch('query', (newquery) => { // 向父组件派发query事件
         this.$emit('query', newquery)
       })
     },
