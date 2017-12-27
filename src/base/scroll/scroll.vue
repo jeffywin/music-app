@@ -24,6 +24,10 @@
      listenScroll: {
        type: Boolean,
        default: false
+     },
+     pullup: { // 上拉刷新
+       type: Boolean,
+       default: false
      }
    },
 
@@ -45,6 +49,13 @@
        if (this.listenScroll) {
          this.scroll.on('scroll', (pos) => {
            this.$emit('scrollMove', pos)
+         })
+       }
+       if (this.pullup) {
+         this.scroll.on('scrollEnd', () => { // 当停止滚动的时候
+           if (this.scroll.y <= this.scroll.maxScrollY + 50) {
+             this.$emit('scrollToEnd') // 派发滚动到底部事件
+           }
          })
        }
      },
