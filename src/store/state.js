@@ -7,8 +7,8 @@ const state = { // 定义数据的地方
   singer: {},
   playing: false,
   fullScreen: false,
-  playlist: [],
-  sequenceList: [],
+  playlist: [], // 播放列表
+  sequenceList: [], // 歌曲顺序列表
   mode: playMode.sequence,
   currentIndex: -1,
   songSheet: {}, // 歌单详情

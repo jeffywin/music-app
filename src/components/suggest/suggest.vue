@@ -29,7 +29,7 @@
   import Scroll from 'base/scroll/scroll'
   import Loading from 'base/loading/loading'
   import Singer from 'common/js/singer'
-  import {mapMutations} from 'vuex'
+  import {mapMutations, mapActions} from 'vuex'
 
   export default {
     props: {
@@ -121,11 +121,16 @@
             path: `/search/${item.singermid}`
           })
           this.setSinger(singer)
+        } else {
+          this.insertSong(item)
         }
       },
       ...mapMutations({
         setSinger: 'SET_SINGER'
-      })
+      }),
+      ...mapActions([
+        'insertSong'
+      ])
     },
     watch: {
       query(newQuery) {
