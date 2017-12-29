@@ -12,7 +12,8 @@ const state = { // 定义数据的地方
   mode: playMode.sequence,
   currentIndex: -1,
   songSheet: {}, // 歌单详情
-  rankMusicList: {}
+  rankMusicList: {},
+  searchHistory: {}
 }
 
 export default state

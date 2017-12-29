@@ -30,6 +30,9 @@ const mutations = {
    },
    [types.SET_RANK_MUSICLIST](state, list) {
     state.rankMusicList = list
+   },
+   [types.SET_SEARCH_HISTORY](state, history) {
+     state.searchHistory = history
    }
 }
 

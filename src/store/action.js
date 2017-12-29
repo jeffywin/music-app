@@ -4,6 +4,7 @@
 import * as types from './mutation-types'
 import {shuffle} from 'common/js/dom'
 import {playMode} from 'common/js/config'
+import {saveSearch} from 'common/js/cache'
 
 function findIndex(list, song) {
   return list.findIndex((item) => {
@@ -70,11 +71,14 @@ export const insertSong = function ({commit, state}, song) {
       sequenceList.splice(fsIndex + 1, 1)
     }
   }
-
   commit(types.SET_PLAYLIST, playlist)
   commit(types.SET_SEQUENCELIST, sequenceList)
   commit(types.SET_CURRENT_INDEX, currentIndex)
   commit(types.SET_FULL_SCREEN, true)
   commit(types.SET_PLAYING_STATE, true)
+}
+
+export const saveSearchHistory = function ({commit}, query) {
+  commit(types.SET_SEARCH_HISTORY, saveSearch(query))
 }
 
