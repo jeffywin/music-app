@@ -84,6 +84,7 @@
           </div>
         </div>
       </transition>
+      <playlist></playlist>
       <audio ref='audio' :src="currentSong.url" v-if="currentSong" @canplay="ready" @timeupdate="updateTime" @ended="end"></audio>
     </div>
 </template>
@@ -95,6 +96,7 @@
   import {shuffle} from 'common/js/dom'
   import Lyric from 'lyric-parser'
   import Scroll from 'base/scroll/scroll'
+  import Playlist from 'components/playlist/playlist'
 
   export default {
     created() {
@@ -347,7 +349,8 @@
     },
     components: {
       ProgressBar,
-      Scroll
+      Scroll,
+      Playlist
     }
   }
 </script>
