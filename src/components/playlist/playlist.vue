@@ -1,7 +1,7 @@
 <template>
   <transition class="list-fade">
-    <div class="playlist">
-      <div class="list-wrapper">
+    <div class="playlist" v-show="showFlag" @click="hide">
+      <div class="list-wrapper" @click.stop>
         <div class="list-header">
           <div class="title">
             <i class="icon"></i>
@@ -21,7 +21,7 @@
                 <i class="icon-not-favourite"></i>
               </span>
               <span class="delete">
-                <i class="icon-delete"> </i>
+                <i class="icon-delete"></i>
               </span>
             </li>
           </ul>
@@ -32,7 +32,7 @@
             <span class="text">添加歌曲到队列</span>
           </div>
         </div>
-        <div class="list-close">
+        <div class="list-close" @click="hide">
           <span>关闭</span>
         </div>
       </div>
@@ -41,7 +41,21 @@
 </template>
 
 <script type="text/ecmascript-6">
-
+  export default {
+      data() {
+        return {
+          showFlag: false
+        }
+      },
+      methods: {
+        show() {
+          this.showFlag = true
+        },
+        hide() {
+          this.showFlag = false
+        }
+      }
+  }
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">

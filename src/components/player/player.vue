@@ -79,12 +79,12 @@
           <div class="control">
             <i :class="miniIcon" @click.stop="toggleMiniP"></i>
           </div>
-          <div class="control">
+          <div class="control" @click="showPlaylist">
             <i class="icon-playlist"></i>
           </div>
         </div>
       </transition>
-      <playlist></playlist>
+      <playlist ref="playlist"></playlist>
       <audio ref='audio' :src="currentSong.url" v-if="currentSong" @canplay="ready" @timeupdate="updateTime" @ended="end"></audio>
     </div>
 </template>
@@ -258,6 +258,9 @@
             this.currentLyric.play()
           }
         })
+      },
+      showPlaylist() {
+        this.$refs.playlist.show()
       },
       handleLyric(lineNum) { // 处理歌词的回调函数
         let liNum = lineNum.lineNum
