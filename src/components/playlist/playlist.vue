@@ -12,11 +12,11 @@
             </span>
           </div>
         </div>
-        <div class="list-content">
+        <scroll ref="listContent" class="list-content">
           <ul>
-            <li class="item">
+            <li class="item" v-for="item in sequenceList">
               <i class="current"></i>
-              <span class="text"></span>
+              <span class="text">{{item.name}}</span>
               <span class="like">
                 <i class="icon-not-favourite"></i>
               </span>
@@ -25,7 +25,7 @@
               </span>
             </li>
           </ul>
-        </div>
+        </scroll>
         <div class="list-operate">
           <div class="add">
             <i class="icon-add"></i>
@@ -41,20 +41,34 @@
 </template>
 
 <script type="text/ecmascript-6">
+  import {mapGetters} from 'vuex'
+  import Scroll from 'base/scroll/scroll'
+
   export default {
-      data() {
-        return {
-          showFlag: false
-        }
-      },
-      methods: {
-        show() {
-          this.showFlag = true
-        },
-        hide() {
-          this.showFlag = false
-        }
+    data() {
+      return {
+        showFlag: false
       }
+    },
+    computed: {
+      ...mapGetters([
+        'sequenceList'
+      ])
+    },
+    methods: {
+      show() {
+        this.showFlag = true
+        setTimeout(() => {
+          this.$refs.listContent.refresh()
+        }, 20)
+      },
+      hide() {
+        this.showFlag = false
+      }
+    },
+    components: {
+      Scroll
+    }
   }
 </script>
 
