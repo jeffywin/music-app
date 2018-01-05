@@ -12,7 +12,7 @@
             </span>
           </div>
         </div>
-        <scroll ref="listContent" class="list-content">
+        <scroll ref="listContent" class="list-content" :data="sequenceList">
           <ul>
             <li class="item" v-for="item in sequenceList">
               <i class="current"></i>
@@ -58,7 +58,7 @@
     methods: {
       show() {
         this.showFlag = true
-        setTimeout(() => {
+        setTimeout(() => { // 不能滚动问题
           this.$refs.listContent.refresh()
         }, 20)
       },
